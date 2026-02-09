@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query } from "@/lib/db";
+import { queryOne } from "@/lib/db";
 import { comparePassword, generateToken } from "@/lib/auth";
 
 export async function POST(req: Request) {
@@ -10,8 +10,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
-    const result = await query("SELECT * FROM users WHERE email = $1", [email]);
-    const user = result.rows[0];
+    const user = await queryOne("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
 
     if (!user || !(await comparePassword(password, user.password))) {
       return NextResponse.json(
